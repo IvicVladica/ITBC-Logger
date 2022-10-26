@@ -17,6 +17,7 @@ public class ClientRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    public UUID token;
 
     public List<Client> getAllClients() {
         String query = "SELECT id, username, password, email, logCount FROM Clients";
@@ -32,7 +33,7 @@ public class ClientRepository {
         return jdbcTemplate.queryForObject(query, Integer.class);
     }
 
-    public int isDuplicatePassword (String email)  {
+    public int isDuplicateEmail (String email)  {
         String query = "SELECT COUNT (*) FROM Clients WHERE email ='"+email+"'";
         return jdbcTemplate.queryForObject(query, Integer.class);
     }
@@ -43,6 +44,19 @@ public class ClientRepository {
         String action = "insert into Clients (id, username, password, email, logCount)  VALUES ('"
                 + client.getId() + "','" +client.getUsername() +"', '"+client.getPassword()+"','"+client.getEmail() +"','"+client.getLogCount()+"')";
         jdbcTemplate.execute(action);
+    }
+
+    public UUID clientLogin (Client client) {
+        String findUserQuery = "SELECT username FROM Clients WHERE username = '"+client.getUsername()+"'";
+        String findUser = jdbcTemplate.queryForObject(findUserQuery, String.class);
+        String findPasswordQuery = "SELECT password FROM Clients WHERE username = '"+client.getUsername()+"'";
+        String findPassword = jdbcTemplate.queryForObject(findPasswordQuery, String.class);
+        String findIdQuery = "SELECT id FROM Clients WHERE username = '"+client.getUsername()+"'";
+        UUID findId = jdbcTemplate.queryForObject(findIdQuery, UUID.class);
+        if (findUser==null) {return null;}
+        if (!client.getPassword().equals(findPassword)) {return null;}
+        token = findId;
+        return token;
     }
 
     public void changePassword (UUID clientID, Client client) {

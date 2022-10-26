@@ -8,7 +8,10 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,6 +47,12 @@ public class LogRepository {
                 query,
                 BeanPropertyRowMapper.newInstance(Log.class)
         );
+    }
+    public boolean checkDate(String d1, String d2) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date a = formatter.parse(d1);
+        Date b = formatter.parse(d2);
+        return (a.after(b));
     }
 }
 

@@ -43,12 +43,22 @@ public class ClientController {
         if (clientRepository.isDuplicateName(client.getUsername()) > 0) {   //provera da li vec postoji username
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
         }
-        if (clientRepository.isDuplicatePassword(client.getEmail()) > 0) { //provera da li vec postoji email
+        if (clientRepository.isDuplicateEmail(client.getEmail()) > 0) { //provera da li vec postoji email
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
         }
         clientRepository.insertClient(client);                              //unos klijenta, ako je sve ok
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
+
+    @PostMapping("/api/clients/login")
+    public ResponseEntity<?> loginClient (@RequestBody Client client) throws  SQLDataException {
+        if (clientRepository.clientLogin(client)==null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username or password incorrect");
+        }
+        clientRepository.clientLogin(client);
+        return ResponseEntity.status(HttpStatus.OK).body(clientRepository.clientLogin(client));
+    }
+
     @PatchMapping("/api/clients/{clientId}/reset-password")
     public ResponseEntity<String> changePassword(@RequestParam(value = "clientId") UUID clientId,
                                                  @RequestBody Client client) {

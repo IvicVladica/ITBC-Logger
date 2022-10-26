@@ -24,6 +24,11 @@ public class Client {
         this.email = email;
     }
 
+    public Client(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
     public Client(String password) {
         this.password = password;
     }
