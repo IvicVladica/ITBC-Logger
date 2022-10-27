@@ -1,6 +1,7 @@
 package com.example.ITBCLogger.repository;
 
 import com.example.ITBCLogger.model.Client;
+import com.example.ITBCLogger.model.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,14 +11,16 @@ import org.springframework.stereotype.Repository;
 import java.beans.BeanProperty;
 import java.sql.*;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Repository
 public class ClientRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-    public UUID token;
+    private UUID token;
 
     public List<Client> getAllClients() {
         String query = "SELECT id, username, password, email, logCount FROM Clients";
@@ -38,6 +41,17 @@ public class ClientRepository {
         return jdbcTemplate.queryForObject(query, Integer.class);
     }
 
+    public boolean isEmailValid (String name) {
+        String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        return (Pattern.matches(regex, name));
+    }
+
+    public boolean isPasswordValid (String password) {
+        return (password.matches(".*[a-zA-Z].*")
+                & password.matches(".*[0-9].*")
+                & password.length()>=8);
+    }
+
     public void insertClient (Client client) {
         client.setId(UUID.randomUUID());
         client.setLogCount(0);
@@ -49,8 +63,7 @@ public class ClientRepository {
     public UUID clientLogin (Client client) {
         String findUserQuery = "SELECT username FROM Clients WHERE username = '"+client.getUsername()+"'";
         String findUser = jdbcTemplate.queryForObject(findUserQuery, String.class);
-        String findPasswordQuery = "SELECT password FROM Clients WHERE username = '"+client.getUsername()+"'";
-        String findPassword = jdbcTemplate.queryForObject(findPasswordQuery, String.class);
+        String findPasswordQuery = "SELECT password FROM Clients WHERE username = '"+client.getUsername()+"'";String findPassword = jdbcTemplate.queryForObject(findPasswordQuery, String.class);
         String findIdQuery = "SELECT id FROM Clients WHERE username = '"+client.getUsername()+"'";
         UUID findId = jdbcTemplate.queryForObject(findIdQuery, UUID.class);
         if (findUser==null) {return null;}
@@ -63,6 +76,14 @@ public class ClientRepository {
         String password = client.getPassword();
         String action = "UPDATE Clients SET [password]='"+password+"' WHERE id='"+clientID+"'";
         jdbcTemplate.execute(action);
+    }
+
+    public UUID getToken() {
+        return token;
+    }
+
+    public void setToken(UUID token) {
+        this.token = token;
     }
 }
 

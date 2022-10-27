@@ -2,6 +2,7 @@ package com.example.ITBCLogger.repository;
 
 import com.example.ITBCLogger.model.Log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -27,21 +28,21 @@ public class LogRepository {
         if (log.getLogType()==2) {log.setLogTypeName("WARNING");};
         if (log.getLogType()==3) {log.setLogTypeName("INFO");};
         log.setDateOfLog(LocalDate.now());
-        String action = "insert into Logs (id, message, logType, logTypeName, dateOfLog)  VALUES ('"
+        String action = "insert into Logs (id, message, logType, logTypeName, dateOfLog, token)  VALUES ('"
                 +log.getId()+ "','" +log.getMessage()+"', '"+log.getLogType()+"'," +
-                "'"+log.getLogTypeName() +"','"+log.getDateOfLog()+"')";
+                "'"+log.getLogTypeName() +"','"+log.getDateOfLog()+"','"+log.getToken()+"')";
         jdbcTemplate.execute(action);
     }
-    public List<Log> getLogs(String message, Integer logType, String firstDate, String secondDate) {
+    public List<Log> getLogs(String message, Integer logType, String firstDate, String secondDate, UUID logToken) {
         String query = "";
-        if (message==null) {query = "SELECT * FROM LOGS WHERE logType='"+logType+"' AND dateOfLog BETWEEN '"+firstDate+"' AND '"+secondDate+"'";}
-        if (logType==null) {query = "SELECT * FROM LOGS WHERE message LIKE '%"+message+"%' AND dateOfLog BETWEEN '"+firstDate+"' AND '"+secondDate+"'";}
-        if (firstDate==null && secondDate==null) {query = "SELECT * FROM LOGS WHERE message LIKE'%"+message+"%' AND logType='"+logType+"'";}
-        if (message==null && logType==null) {query = "SELECT * FROM LOGS WHERE dateOfLog BETWEEN '"+firstDate+"' AND '"+secondDate+"'";}
-        if (message==null && firstDate==null && secondDate==null) {query = "SELECT * FROM LOGS WHERE logType='"+logType+"'";}
-        if (logType==null && firstDate==null && secondDate==null) {query = "SELECT * FROM LOGS WHERE message LIKE '%"+message+"%'";}
-        if (message!=null && logType!=null && firstDate!=null && secondDate!=null) {query = "SELECT * FROM LOGS WHERE [message] like '%"+message+"%' AND logType='"+logType+"' AND dateOfLog BETWEEN '"+firstDate+"' AND '"+secondDate+"'";}
-        if (message==null && logType==null && firstDate==null && secondDate==null) {query = "SELECT * FROM LOGS";}
+        if (message==null) {query = "SELECT * FROM LOGS WHERE logType='"+logType+"' AND dateOfLog BETWEEN '"+firstDate+"' AND '"+secondDate+"' AND token='"+logToken+"'";}
+        if (logType==null) {query = "SELECT * FROM LOGS WHERE message LIKE '%"+message+"%' AND dateOfLog BETWEEN '"+firstDate+"' AND '"+secondDate+"' AND token='"+logToken+"'";}
+        if (firstDate==null && secondDate==null) {query = "SELECT * FROM LOGS WHERE message LIKE'%"+message+"%' AND logType='"+logType+"' AND token='"+logToken+"'";}
+        if (message==null && logType==null) {query = "SELECT * FROM LOGS WHERE dateOfLog BETWEEN '"+firstDate+"' AND '"+secondDate+"' AND token='"+logToken+"'";}
+        if (message==null && firstDate==null && secondDate==null) {query = "SELECT * FROM LOGS WHERE logType='"+logType+"' AND logToken='"+logToken+"' AND token='"+logToken+"'";}
+        if (logType==null && firstDate==null && secondDate==null) {query = "SELECT * FROM LOGS WHERE message LIKE '%"+message+"%' AND token='"+logToken+"'";}
+        if (message!=null && logType!=null && firstDate!=null && secondDate!=null) {query = "SELECT * FROM LOGS WHERE [message] like '%"+message+"%' AND logType='"+logType+"' AND dateOfLog BETWEEN '"+firstDate+"' AND '"+secondDate+"'AND token='"+logToken+"'";}
+        if (message==null && logType==null && firstDate==null && secondDate==null) {query = "SELECT * FROM LOGS WHERE token='"+logToken+"'";}
 
         return jdbcTemplate.query(
                 query,
@@ -53,6 +54,19 @@ public class LogRepository {
         Date a = formatter.parse(d1);
         Date b = formatter.parse(d2);
         return (a.after(b));
+    }
+    public UUID getId(String input) {
+        String query = "SELECT id FROM Clients WHERE id LIKE '"+input+"'";
+        try {
+        return jdbcTemplate.queryForObject(query, UUID.class); }
+        catch(EmptyResultDataAccessException e) {return null;}
+    }
+    public void updateLogCount (UUID id) {
+        String findLogCount = "SELECT logCount FROM Clients WHERE id = '"+id+"'";
+        int start = jdbcTemplate.queryForObject(findLogCount, Integer.class);
+        int result = start+1;
+        String updateLogCount = "UPDATE Clients SET logCount = '"+result+"' WHERE id = '"+id+"'";
+        jdbcTemplate.execute(updateLogCount);
     }
 }
 

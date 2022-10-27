@@ -16,6 +16,9 @@ public class Log {
     String logTypeName;
     LocalDate dateOfLog;
 
+    UUID token;
+
+
     public Log(){};
     public Log(String message, int logType) {
         this.message = message;
@@ -78,5 +81,13 @@ public class Log {
                 ", logTypeName='" + logTypeName + '\'' +
                 ", date=" + dateOfLog +
                 '}';
+    }
+
+    public UUID getToken() {
+        return token;
+    }
+
+    public void setToken(UUID token) {
+        this.token = token;
     }
 }

@@ -28,25 +28,22 @@ public class ClientController {
 
     @PostMapping("/api/clients/register")
     public ResponseEntity<String> addClient (@RequestBody Client client) throws SQLDataException {
-        String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-        if (!Pattern.matches(regex, client.getEmail())) {                    //validacija email-a
+        if (!clientRepository.isEmailValid(client.getEmail())){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email must be valid");
         }
-        if (client.getUsername().length()<3) {                               //provera da li je ime duze od 3 karaktera
+        if (client.getUsername().length()<3) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username at least 3 characters");
         }
-        if (!(client.getPassword().matches(".*[a-zA-Z].*")            //provera da li je password duzi od 8 karaktera
-                & client.getPassword().matches(".*[0-9].*")           //i da li ima 1 slovo i 1 broj
-                & client.getPassword().length()>=8)) {
+        if (!clientRepository.isPasswordValid(client.getPassword())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Password at least 8 characters and one letter and one number");
         }
-        if (clientRepository.isDuplicateName(client.getUsername()) > 0) {   //provera da li vec postoji username
+        if (clientRepository.isDuplicateName(client.getUsername()) > 0) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
         }
-        if (clientRepository.isDuplicateEmail(client.getEmail()) > 0) { //provera da li vec postoji email
+        if (clientRepository.isDuplicateEmail(client.getEmail()) > 0) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
         }
-        clientRepository.insertClient(client);                              //unos klijenta, ako je sve ok
+        clientRepository.insertClient(client);
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
 
