@@ -3,12 +3,9 @@ package com.example.ITBCLogger.repository;
 import com.example.ITBCLogger.model.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -39,7 +36,7 @@ public class LogRepository {
         if (logType==null) {query = "SELECT * FROM LOGS WHERE message LIKE '%"+message+"%' AND dateOfLog BETWEEN '"+firstDate+"' AND '"+secondDate+"' AND token='"+logToken+"'";}
         if (firstDate==null && secondDate==null) {query = "SELECT * FROM LOGS WHERE message LIKE'%"+message+"%' AND logType='"+logType+"' AND token='"+logToken+"'";}
         if (message==null && logType==null) {query = "SELECT * FROM LOGS WHERE dateOfLog BETWEEN '"+firstDate+"' AND '"+secondDate+"' AND token='"+logToken+"'";}
-        if (message==null && firstDate==null && secondDate==null) {query = "SELECT * FROM LOGS WHERE logType='"+logType+"' AND logToken='"+logToken+"' AND token='"+logToken+"'";}
+        if (message==null && firstDate==null && secondDate==null) {query = "SELECT * FROM LOGS WHERE logType='"+logType+"' AND token='"+logToken+"'";}
         if (logType==null && firstDate==null && secondDate==null) {query = "SELECT * FROM LOGS WHERE message LIKE '%"+message+"%' AND token='"+logToken+"'";}
         if (message!=null && logType!=null && firstDate!=null && secondDate!=null) {query = "SELECT * FROM LOGS WHERE [message] like '%"+message+"%' AND logType='"+logType+"' AND dateOfLog BETWEEN '"+firstDate+"' AND '"+secondDate+"'AND token='"+logToken+"'";}
         if (message==null && logType==null && firstDate==null && secondDate==null) {query = "SELECT * FROM LOGS WHERE token='"+logToken+"'";}

@@ -1,17 +1,12 @@
 package com.example.ITBCLogger.repository;
 
 import com.example.ITBCLogger.model.Client;
-import com.example.ITBCLogger.model.Log;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import java.beans.BeanProperty;
-import java.sql.*;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -23,7 +18,7 @@ public class ClientRepository {
     private UUID token;
 
     public List<Client> getAllClients() {
-        String query = "SELECT id, username, password, email, logCount FROM Clients";
+        String query = "SELECT id, username, email, logCount FROM Clients";
 
         return jdbcTemplate.query(
                 query,
@@ -50,6 +45,13 @@ public class ClientRepository {
         return (password.matches(".*[a-zA-Z].*")
                 & password.matches(".*[0-9].*")
                 & password.length()>=8);
+    }
+
+    public UUID getId(String input) {
+        String query = "SELECT id FROM Clients WHERE id LIKE '"+input+"'";
+        try {
+            return jdbcTemplate.queryForObject(query, UUID.class); }
+        catch(EmptyResultDataAccessException e) {return null;}
     }
 
     public void insertClient (Client client) {

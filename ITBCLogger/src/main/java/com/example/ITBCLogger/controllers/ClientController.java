@@ -6,11 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.sql.SQLDataException;
-import java.util.List;
 import java.util.UUID;
-import java.util.regex.Pattern;
+
 
 @RestController
 public class ClientController {
@@ -22,8 +20,15 @@ public class ClientController {
     }
 
     @GetMapping("/api/clients")                                                 //ispis svih klijenata
-    public List<Client> getAllClients(){
-        return clientRepository.getAllClients();
+    public ResponseEntity<?> getAllClients (@RequestHeader String authorization){
+        UUID logToken = clientRepository.getId(authorization);
+        if (logToken==null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Incorrect token");
+        }
+        if (!authorization.equals("073efd22-9d06-4bd9-971f-fb155977d35b")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Correct token, but not admin");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(clientRepository.getAllClients());
     }
 
     @PostMapping("/api/clients/register")
@@ -58,12 +63,20 @@ public class ClientController {
 
     @PatchMapping("/api/clients/{clientId}/reset-password")
     public ResponseEntity<String> changePassword(@RequestParam(value = "clientId") UUID clientId,
-                                                 @RequestBody Client client) {
+                                                 @RequestBody Client client,
+                                                 @RequestHeader String authorization) {
+        UUID logToken = clientRepository.getId(authorization);
+        if (logToken==null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Incorrect token");
+        }
+        if (!authorization.equals("073efd22-9d06-4bd9-971f-fb155977d35b")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Correct token, but not admin");
+        }
         if (client.getPassword() == null) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No content");
         }
         clientRepository.changePassword(clientId, client);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
-
+    // adminID = 073efd22-9d06-4bd9-971f-fb155977d35b
 }

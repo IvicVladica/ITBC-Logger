@@ -18,6 +18,13 @@ public class Client {
 
     public Client() {}
 
+    public Client(UUID id, String username, String email, int logCount) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.logCount = logCount;
+    }
+
     public Client(String username, String password, String email) {
         this.username = username;
         this.password = password;

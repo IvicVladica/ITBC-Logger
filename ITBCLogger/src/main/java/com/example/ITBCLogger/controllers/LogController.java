@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.sql.SQLDataException;
 import java.text.ParseException;
 import java.util.UUID;
@@ -57,12 +56,3 @@ public class LogController {
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
 }
-
-//    @RequestMapping(value="submitForm.html", method=RequestMethod.POST)
-//    public ModelAndView submitForm(@RequestParam Map<String, String> reqParam) {
-//        String name  = reqParam.get("studentName");
-//        String email = reqParam.get("studentEmail");
-//        ModelAndView model = new ModelAndView("AdmissionSuccess");
-//        model.addObject("msg", "Details submitted by you::Name: " + name
-//                + ", Email: " + email );
-//    }
